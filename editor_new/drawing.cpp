@@ -7,7 +7,7 @@ FILE _iob[3] = { __iob_func()[0], __iob_func()[1], __iob_func()[2] };
 int __mb_cur_max;
 const unsigned short* _pctype;
 
-string inFileName = "data/2.off";
+string inFileName = "1.off";
 string outFileName;
 
 //////////////////////////////////////////////////////////////////////////

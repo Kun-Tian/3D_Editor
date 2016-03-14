@@ -130,7 +130,7 @@ void View3D::paintGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClearColor(80.0 / 255.0, 120.0 / 255.0, 220.0 / 255.0, 0.0f);
-	glClearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 0.0f);
+	glClearColor(1.0, 1.0, 1.0, 0.0f);
 	drawTriangle();
 	glFlush();
 	glFinish();

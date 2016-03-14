@@ -19,5 +19,6 @@ public:
 	Sketch2D *sketch2D;
 	Sketch3D *sketch3D;
 
+	QPushButton *editButton, *confirmButton;
 };
 

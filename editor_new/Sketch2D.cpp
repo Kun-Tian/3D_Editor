@@ -51,7 +51,7 @@ void Sketch2D::paintGL()
 {
 	glColor3f(0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glClearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 0.0f);
 
 	glLineWidth(1.0);
 	myImage.drawSil();
