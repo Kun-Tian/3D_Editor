@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
 	EditWidget *editWidget = new EditWidget();
 	tab->addTab(editWidget, "Edit");
 
+	SketchWidget *sketchWidget = new SketchWidget();
+	tab->addTab(sketchWidget, "Sketch");
+
 	QWidget *printWidget = new QWidget();
 	QGridLayout *printLayout = new QGridLayout();
 	printSetting = new QPushButton("Setting");

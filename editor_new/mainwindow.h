@@ -10,6 +10,7 @@
 #include "ClientNet.h"  
 #include "off2stl.h"
 #include "qmessagebox.h"
+#include "SketchWidget.h"
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;

@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClientNet.cpp" />
+    <ClCompile Include="drawing.cpp" />
     <ClCompile Include="EditWidget.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_EditWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -124,12 +125,19 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="mesh3d.cpp" />
     <ClCompile Include="MyMesh.cpp" />
     <ClCompile Include="off2stl.cpp" />
     <ClCompile Include="profile.cpp" />
     <ClCompile Include="setting.cpp" />
+    <ClCompile Include="Sketch2D.cpp" />
+    <ClCompile Include="Sketch3D.cpp" />
+    <ClCompile Include="SketchWidget.cpp" />
+    <ClCompile Include="solver.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="VertexItem.cpp" />
     <ClCompile Include="View2D.cpp" />
@@ -195,7 +203,17 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DNDEBUG -DQT_CORE_LIB -DQT_DLL -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtPrintSupport" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
     <ClInclude Include="ClientNet.h" />
+    <ClInclude Include="commonstructure.h" />
+    <ClInclude Include="drawing.h" />
     <ClInclude Include="GeneratedFiles\ui_setting.h" />
+    <ClInclude Include="Line.h" />
+    <ClInclude Include="line2d.h" />
+    <ClInclude Include="line3d.h" />
+    <ClInclude Include="lineqn.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="matrix4.h" />
+    <ClInclude Include="mesh3d.h" />
+    <ClInclude Include="myMath.h" />
     <ClInclude Include="MyMesh.h" />
     <ClInclude Include="off2stl.h" />
     <CustomBuild Include="setting.h">
@@ -217,7 +235,19 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DNDEBUG -DQT_CORE_LIB -DQT_DLL -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtPrintSupport" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
     <ClInclude Include="profile.h" />
+    <ClInclude Include="Sketch2D.h" />
+    <ClInclude Include="Sketch3D.h" />
+    <ClInclude Include="SketchWidget.h" />
+    <ClInclude Include="solver.h" />
+    <ClInclude Include="taucs.h" />
+    <ClInclude Include="taucs_config_build.h" />
+    <ClInclude Include="taucs_config_tests.h" />
+    <ClInclude Include="taucs_private.h" />
+    <ClInclude Include="triangle3d.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="vector2d.h" />
+    <ClInclude Include="vector3d.h" />
+    <ClInclude Include="vector4d.h" />
     <ClInclude Include="VertexItem.h" />
     <CustomBuild Include="View3D.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing View3D.h...</Message>
@@ -326,7 +356,9 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;.\lib.Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5PrintSupportd.lib;Qt5Widgetsd.lib;gluitdd.lib;trimeshd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5PrintSupportd.lib;Qt5Widgetsd.lib;gluitdd.lib;trimeshd.lib;glut32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

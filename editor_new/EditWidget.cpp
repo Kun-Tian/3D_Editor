@@ -107,7 +107,7 @@ void EditWidget::init()
 	//m->write("mesh.smf");
 	//return;
 
-	system("QSlim.exe -o testo.smf -t 50000 test.smf");
+	system("QSlim.exe -o testo.smf -t 30000 test.smf");
 	mm = new MyMesh("testo.smf");
 
 	int maxVal = mm->vertices.size();
