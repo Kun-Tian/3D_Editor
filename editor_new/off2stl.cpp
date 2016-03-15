@@ -105,3 +105,64 @@ void getnorm(int va, int vb, int vc, float norm[])//p q r
 		norm[0] = 0; norm[1] = 0; norm[2] = 0;
 	}
 }
+
+
+float getheight(char *off_path){
+	FILE *off_fp = fopen(off_path, "r");//读off文件
+	if (off_fp == NULL)
+	{
+		return false;
+	}
+	char off[10];
+	int NumOfV, NumOfF, NumOfE;
+	int currentedge = 0, nump, currentpart = 0;
+	fscanf(off_fp, "%s", off);
+	if (strcmp(off, "OFF") != 0)
+	{
+		return false;
+	}
+	fscanf(off_fp, "%d", &NumOfV);
+	fscanf(off_fp, "%d", &NumOfF);
+	fscanf(off_fp, "%d", &NumOfE);
+	num_of_v = NumOfV;
+	num_of_f = NumOfF;
+	cout << num_of_v;
+	vh = new point[NumOfV];
+	fh = new face[NumOfF];
+	/*获得整个模型的点集*/
+	for (int i = 0; i<NumOfV; i++)
+	{
+		fscanf(off_fp, "%f", &vh[i].x);
+		fscanf(off_fp, "%f", &vh[i].y);
+		fscanf(off_fp, "%f", &vh[i].z);
+	}
+	/*获得整个模型的面集*/
+	for (int i = 0; i<NumOfF; i++)
+	{
+		fscanf(off_fp, "%d", &nump);
+		fscanf(off_fp, "%d", &fh[i].a);
+		fscanf(off_fp, "%d", &fh[i].b);
+		fscanf(off_fp, "%d", &fh[i].c);
+
+		/* 求三角面法向量 */
+		int va = fh[i].a, vb = fh[i].b, vc = fh[i].c;
+		getnorm(va, vb, vc, fh[i].norm);
+
+
+	}
+	fclose(off_fp);
+
+	float x_min = vh[0].x, y_min = vh[0].y, z_min = vh[0].z;//计算高度
+	float x_max = vh[0].x, y_max = vh[0].y, z_max = vh[0].z;
+	for (int i = 0; i < NumOfV; i++)
+	{
+		if (vh[i].x < x_min)x_min = vh[i].x;
+		if (vh[i].y < y_min)y_min = vh[i].y;
+		if (vh[i].z < z_min)z_min = vh[i].z;
+		if (vh[i].x > x_min)x_max = vh[i].x;
+		if (vh[i].y > y_min)y_max = vh[i].y;
+		if (vh[i].z > z_min)z_max = vh[i].z;
+	}
+	return z_max - z_min;
+
+}

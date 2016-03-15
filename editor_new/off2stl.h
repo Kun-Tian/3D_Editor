@@ -2,7 +2,7 @@
 
 void getnorm(int va, int vb, int vc, float norm[]);
 bool off2stl(const char * off_path, const char * stl_path);
-
+float getheight(char *off_path);
 struct point{
 	float x, y, z;
 	float norm[3];

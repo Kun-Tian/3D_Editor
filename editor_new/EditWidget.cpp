@@ -136,11 +136,11 @@ EditWidget::EditWidget()
 
 	QVBoxLayout *vLayout = new QVBoxLayout();
 	openButton = new QPushButton(tr("Load"));
-	saveAsButton = new QPushButton(tr("Save as"));
+	saveAsButton = new QPushButton(tr("Save As"));
 	saveButton = new QPushButton(tr("Save"));
-	normButton = new QPushButton(tr("Norm"));
+	normButton = new QPushButton(tr("Normalization"));
 	deleteButton = new QPushButton(tr("Delete"));
-	sketchButton = new QPushButton(tr("Sketch"));
+	sketchButton = new QPushButton(tr("Sketch Edit"));
 	status = new QLabel();
 	progress = new QProgressBar();
 	vLayout->addWidget(openButton);

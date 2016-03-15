@@ -10,7 +10,14 @@
 #include "ClientNet.h"  
 #include "off2stl.h"
 #include "qmessagebox.h"
-
+#include "gcodeviewer.h"
+#include "profile.h"
+#include <stdlib.h>
+#include<stdio.h>
+#include   "windows.h "                      
+#include   "shellapi.h " 
+#include<cstring>
+#include <QTextCodec>
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
 class QSplitter;
@@ -26,11 +33,13 @@ public:
 
 private:
 	QTabWidget *tab;
-	QPushButton *printSetting, *printPrint;
-
+	QPushButton *printSetting, *printPrint,*printPreview;
+	Gcodeviewer *w;
+	void slide();
 	public slots:
 	void open_setting();
 	void begin_print();
+	void print_preview();
 };
 
 #endif // MAINWINDOW_H
