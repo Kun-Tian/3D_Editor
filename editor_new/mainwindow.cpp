@@ -42,7 +42,7 @@ void MainWindow::open_setting(){
 }
 
 void MainWindow::begin_print(){
-	char *offpath = "..\\shape\\temp.off";// D:\\work\\database\\SHREC14LSGTB\\M000003.off";
+	char *offpath = "temp.off";// D:\\work\\database\\SHREC14LSGTB\\M000003.off";
 	char *stlpath = "..\\file\\test.stl";
 	off2stl(offpath, stlpath);
 
@@ -97,7 +97,7 @@ void MainWindow::slide(){
 	ui.Temperature->setValue(atoi(p->Temperature));
 	ui.ModelHeight->setValue(atoi(p->ModelHeight));
 	*/
-	float scale = 30 / getheight("..\\shape\\temp.off");
+	float scale = 30 / getheight("temp.off");
 	QString Slic("..\\file\\test.stl --output ..\\file\\path.gcode");
 	QString R(" --raft-layers 3"); //true
 	QString S(" --support-material "); //true

@@ -138,7 +138,7 @@ EditWidget::EditWidget()
 	openButton = new QPushButton(tr("Load"));
 	saveAsButton = new QPushButton(tr("Save As"));
 	saveButton = new QPushButton(tr("Save"));
-	normButton = new QPushButton(tr("Normalization"));
+	normButton = new QPushButton(tr("Normalize"));
 	deleteButton = new QPushButton(tr("Delete"));
 	sketchButton = new QPushButton(tr("Sketch Edit"));
 	status = new QLabel();
@@ -290,37 +290,10 @@ void EditWidget::saveToFile()
 void EditWidget::save()
 {
 	status->setText(tr("Processing..."));
-	int maxVal = mm->vertices.size();
+	int maxVal = mm->vertices.size() + mm->faces.size();
 	progress->setRange(0, maxVal);
-	//int val = 0;
-	//int d = 0;
-	//for (int i = 0; i < mm->vertices.size(); i++)
-	//{
-	//	progress->setValue(val);
-	//	val++;
-	//	if (mm->deletedV[i])
-	//	{
-	//		d++;
-	//		mm->vertices.erase(mm->vertices.begin() + i);
-	//		mm->deletedV.erase(mm->deletedV.begin() + i);
-	//		for (int j = 0; j < mm->faces.size(); j++)
-	//		{
-	//			if (mm->faces[j][0] == i || mm->faces[j][1] == i || mm->faces[j][2] == i)
-	//			{
-	//				mm->faces.erase(mm->faces.begin() + j);
-	//				j--;
-	//			}
-	//			else
-	//			{
-	//				for (int k = 0; k < 3; k++)
-	//					if (mm->faces[j][k]>i)
-	//						mm->faces[j][k]--;
-	//			}
-	//		}
-	//		i--;
-	//	}
-	//}
-	
+	int d = 0;
+
 	int newV = 0;
 	int newF = 0;
 	int* map = new int[mm->vertices.size()];
@@ -328,6 +301,7 @@ void EditWidget::save()
 		map[i] = -1;
 	for (int i = 0; i<mm->vertices.size(); i++)
 	{
+		progress->setValue(d++);
 		if (!mm->deletedV[i])
 		{
 			map[i] = newV;
@@ -337,6 +311,7 @@ void EditWidget::save()
 	}
 	for (int i = 0; i<mm->faces.size(); i++)
 	{
+		progress->setValue(d++);
 		if (!mm->deletedF[i])
 		{
 			mm->faces[newF][0] = map[mm->faces[i][0]];
