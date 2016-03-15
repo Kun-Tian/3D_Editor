@@ -129,6 +129,7 @@
     <ClCompile Include="MyMesh.cpp" />
     <ClCompile Include="off2stl.cpp" />
     <ClCompile Include="profile.cpp" />
+    <ClCompile Include="QSlim.cpp" />
     <ClCompile Include="setting.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="VertexItem.cpp" />
@@ -217,6 +218,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DNDEBUG -DQT_CORE_LIB -DQT_DLL -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtPrintSupport" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
     <ClInclude Include="profile.h" />
+    <ClInclude Include="QSlim.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="VertexItem.h" />
     <CustomBuild Include="View3D.h">

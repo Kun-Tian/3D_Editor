@@ -147,6 +147,9 @@
     <ClCompile Include="profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QSlim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyMesh.h">
@@ -168,6 +171,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="profile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QSlim.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

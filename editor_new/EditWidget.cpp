@@ -2,62 +2,127 @@
 #include <QPixmap>
 #include <QImage>
 #include <fstream>
+#include "QSlim.h"
 
 #define MAX_FACES 50000
 
 using namespace std;
 
+
+static void qslim_init()
+{
+	int i;
+	qDebug() << "Reading input ..." << endl;
+	qDebug() << "Cleaning up initial input ..." << endl;
+	int initialVertCount = M0.vertCount();
+	int initialEdgeCount = M0.edgeCount();
+	int initialFaceCount = M0.faceCount();
+	for (i = 0; i<M0.faceCount(); i++)
+		if (!M0.face(i)->plane().isValid())
+			M0.killFace(M0.face(i));
+	M0.removeDegeneracy(M0.allFaces());
+	for (i = 0; i<M0.vertCount(); i++)
+	{
+		if (M0.vertex(i)->edgeUses().length() == 0)
+			M0.vertex(i)->kill();
+	}
+	qDebug() << "Input model summary:" << endl;
+	qDebug() << "    Vertices    : " << initialVertCount << endl;
+	qDebug() << "    Edges       : " << initialEdgeCount << endl;
+	int man = 0, non = 0, bndry = 0, bogus = 0;
+	for (i = 0; i<M0.edgeCount(); i++)
+		switch (M0.edge(i)->faceUses().length())
+	{
+		case 0:
+			bogus++;
+			break;
+		case 1:
+			bndry++;
+			break;
+		case 2:
+			man++;
+			break;
+		default:
+			non++;
+			break;
+	}
+	if (bogus)
+		qDebug() << "        Bogus       : " << bogus << endl;
+	qDebug() << "        Boundary    : " << bndry << endl;
+	qDebug() << "        Manifold    : " << man << endl;
+	qDebug() << "        Nonmanifold : " << non << endl;
+
+	qDebug() << "    Faces       : " << initialFaceCount << endl;
+}
+static void qslim_run()
+{
+	decimate_init(M0, pair_selection_tolerance);
+	while (M0.validFaceCount > face_target&& decimate_min_error() < error_tolerance)
+		decimate_contract(M0);
+	qDebug() << "Done!" << endl;
+}
+static void InitM0(MyMesh *m)
+{
+	for (size_t i = 0; i<m->vertices.size(); i++)
+	{
+		Vec3 v(m->vertices[i][0], m->vertices[i][1], m->vertices[i][2]);
+		M0.in_Vertex(v);
+	}
+	for (size_t i = 0; i<m->faces.size(); i++)
+	{
+		M0.in_Face(m->faces[i][0], m->faces[i][1], m->faces[i][2]);
+	}
+}
+static void ReplaceM(MyMesh *m)
+{
+	m->vertices.clear();
+	m->faces.clear();
+	int* map = new int[M0.vertCount()];
+	for (int i = 0; i<M0.vertCount(); i++)
+		map[i] = -1;
+	for (int i = 0; i<M0.vertCount(); i++)
+	{
+		if (M0.vertex(i)->isValid())
+		{
+			map[i] = m->vertices.size();
+			real* data = M0.vertex(i)->raw();
+			m->vertices.push_back(trimesh::point(data[0],data[1],data[2]));
+		}
+	}
+	for (int i = 0; i<M0.faceCount(); i++)
+	{
+		if (M0.face(i)->isValid())
+		{
+			Vertex* v0 = M0.face(i)->vertex(0);
+			Vertex* v1 = M0.face(i)->vertex(1);
+			Vertex* v2 = M0.face(i)->vertex(2);
+			m->faces.push_back(TriMesh::Face(map[v0->uniqID], map[v1->uniqID], map[v2->uniqID]));
+		}
+	}
+	delete[] map;
+}
+
+
+
+
 EditWidget::EditWidget()
 {
 	loadFromFile = true;
-	//mm = new MyMesh("1.off");
-	//VertexItem::mm = mm;
-	//mm->need_bsphere();
-	//for (int i = 0; i < mm->vertices.size(); i++)
-	//	mm->vertices[i] = (mm->vertices[i] - mm->bsphere.center) / mm->bsphere.r;
 	QGridLayout *layout = new QGridLayout();
 
 	viewX = new View2D("Top left view");
-	//viewX->mm = mm;
 	sceneX = new QGraphicsScene();
-	//for (int i = 0; i < mm->vertices.size(); i++)
-	//{
-	//	VertexItemX *v = new VertexItemX();
-	//	v->setVertex(i);
-	//	v->updatePos();
-	//	sceneX->addItem(v);
-	//	viewX->vertexList.push_back(v);
-	//}
 	viewX->view()->setScene(sceneX);
 
 	viewY = new View2D("Top right view");
-	//viewY->mm = mm;
 	sceneY = new QGraphicsScene();
-	//for (int i = 0; i < mm->vertices.size(); i++)
-	//{
-	//	VertexItemY *v = new VertexItemY();
-	//	v->setVertex(i);
-	//	v->updatePos();
-	//	sceneY->addItem(v);
-	//	viewY->vertexList.push_back(v);
-	//}
 	viewY->view()->setScene(sceneY);
 
 	viewZ = new View2D("Bottom left view");
-	//viewZ->mm = mm;
 	sceneZ = new QGraphicsScene();
-	//for (int i = 0; i < mm->vertices.size(); i++)
-	//{
-	//	VertexItemZ *v = new VertexItemZ();
-	//	v->setVertex(i);
-	//	v->updatePos();
-	//	sceneZ->addItem(v);
-	//	viewZ->vertexList.push_back(v);
-	//}
 	viewZ->view()->setScene(sceneZ);
 
 	view3D = new View3D();
-	//view3D->setModel(mm);
 
 	viewX->v1 = viewY;
 	viewX->v2 = viewZ;
@@ -116,11 +181,6 @@ void EditWidget::load()
 
 void EditWidget::init()
 {
-
-	//MyMesh *m = new MyMesh("mesh.stl");
-	//m->write("mesh.smf");
-	//return;
-
 	if (loadFromFile)
 	{
 		QString path = QFileDialog::getOpenFileName(this, tr("Open 3D Object"), ".", tr("3D Object Files(*.ply *.ray *.obj *.off *.sm *.smf *.stl *.dae)"));
@@ -130,10 +190,22 @@ void EditWidget::init()
 		mm = new MyMesh(path.toStdString().c_str());
 		if (mm->faces.size() > MAX_FACES)
 		{
-			mm->write("temp.smf");
-			system("QSlim.exe -o temp.smf -t 50000 temp.smf");
-			delete mm;
-			mm = new MyMesh("temp.smf");
+			InitM0(mm);
+			qslim_init();
+			face_target = MAX_FACES;
+			error_tolerance = HUGE;
+			will_use_plane_constraint = true;
+			will_use_vertex_constraint = false;
+			will_preserve_boundaries = true;
+			will_preserve_mesh_quality = true;
+			will_constrain_boundaries = true;
+			boundary_constraint_weight = 1.0;
+			will_weight_by_area = false;
+			placement_policy = 1;
+			pair_selection_tolerance = 0.0;
+			qslim_run();
+			ReplaceM(mm);
+			mm->write("temp.off");
 		}
 		loadFromFile = false;
 	}
@@ -220,38 +292,69 @@ void EditWidget::save()
 	status->setText(tr("Processing..."));
 	int maxVal = mm->vertices.size();
 	progress->setRange(0, maxVal);
-	int val = 0;
-	int d = 0;
-	for (int i = 0; i < mm->vertices.size(); i++)
+	//int val = 0;
+	//int d = 0;
+	//for (int i = 0; i < mm->vertices.size(); i++)
+	//{
+	//	progress->setValue(val);
+	//	val++;
+	//	if (mm->deletedV[i])
+	//	{
+	//		d++;
+	//		mm->vertices.erase(mm->vertices.begin() + i);
+	//		mm->deletedV.erase(mm->deletedV.begin() + i);
+	//		for (int j = 0; j < mm->faces.size(); j++)
+	//		{
+	//			if (mm->faces[j][0] == i || mm->faces[j][1] == i || mm->faces[j][2] == i)
+	//			{
+	//				mm->faces.erase(mm->faces.begin() + j);
+	//				j--;
+	//			}
+	//			else
+	//			{
+	//				for (int k = 0; k < 3; k++)
+	//					if (mm->faces[j][k]>i)
+	//						mm->faces[j][k]--;
+	//			}
+	//		}
+	//		i--;
+	//	}
+	//}
+	
+	int newV = 0;
+	int newF = 0;
+	int* map = new int[mm->vertices.size()];
+	for (int i = 0; i<mm->vertices.size(); i++)
+		map[i] = -1;
+	for (int i = 0; i<mm->vertices.size(); i++)
 	{
-		progress->setValue(val);
-		val++;
-		if (mm->deletedV[i])
+		if (!mm->deletedV[i])
 		{
-			d++;
-			mm->vertices.erase(mm->vertices.begin() + i);
-			mm->deletedV.erase(mm->deletedV.begin() + i);
-			for (int j = 0; j < mm->faces.size(); j++)
-			{
-				if (mm->faces[j][0] == i || mm->faces[j][1] == i || mm->faces[j][2] == i)
-				{
-					mm->faces.erase(mm->faces.begin() + j);
-					j--;
-				}
-				else
-				{
-					for (int k = 0; k < 3; k++)
-						if (mm->faces[j][k]>i)
-							mm->faces[j][k]--;
-				}
-			}
-			i--;
+			map[i] = newV;
+			mm->vertices[newV] = mm->vertices[i];
+			newV++;
 		}
 	}
+	for (int i = 0; i<mm->faces.size(); i++)
+	{
+		if (!mm->deletedF[i])
+		{
+			mm->faces[newF][0] = map[mm->faces[i][0]];
+			mm->faces[newF][1] = map[mm->faces[i][1]];
+			mm->faces[newF][2] = map[mm->faces[i][2]];
+			newF++;
+		}
+	}
+	delete[] map;
+
+	mm->vertices.resize(newV);
+	mm->faces.resize(newF);
 	mm->selected.clear();
-	mm->selected.resize(mm->vertices.size(),false);
+	mm->selected.resize(newV, false);
+	mm->deletedV.clear();
+	mm->deletedV.resize(newV, false);
 	mm->deletedF.clear();
-	mm->deletedF.resize(mm->faces.size(),false);
+	mm->deletedF.resize(newF, false);
 
 	for (int i = mm->vertices.size(); i < viewX->vertexList.size(); i++)
 	{
