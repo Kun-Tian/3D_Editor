@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QProgressBar>
 #include <QLabel>
+#include <QFileDialog>
 #include "MyMesh.h"
 #include "View2D.h"
 #include "View3D.h"
@@ -25,13 +26,20 @@ public:
 	QGraphicsScene *sceneX, *sceneY, *sceneZ;
 	MyMesh *mm;
 	QProgressBar *progress;
-	QPushButton *openButton, *saveButton,*deleteButton,*normButton;
+	QPushButton *openButton, *saveAsButton, *saveButton, *deleteButton, *normButton, *sketchButton;
 	QLabel *status;
+	bool loadFromFile;
+	QString saveName;
 
-public slots:
 	void init();
 	void save();
+
+public slots:
+	void load();
+	void saveAs();
+	void saveToFile();
 	void deleteVertex();
 	void norm();
+	void sketch();
 };
 

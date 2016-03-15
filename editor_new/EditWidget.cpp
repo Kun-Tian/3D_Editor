@@ -3,10 +3,13 @@
 #include <QImage>
 #include <fstream>
 
+#define MAX_FACES 50000
+
 using namespace std;
 
 EditWidget::EditWidget()
 {
+	loadFromFile = true;
 	//mm = new MyMesh("1.off");
 	//VertexItem::mm = mm;
 	//mm->need_bsphere();
@@ -68,16 +71,20 @@ EditWidget::EditWidget()
 
 	QVBoxLayout *vLayout = new QVBoxLayout();
 	openButton = new QPushButton(tr("Load"));
+	saveAsButton = new QPushButton(tr("Save as"));
 	saveButton = new QPushButton(tr("Save"));
 	normButton = new QPushButton(tr("Norm"));
 	deleteButton = new QPushButton(tr("Delete"));
+	sketchButton = new QPushButton(tr("Sketch"));
 	status = new QLabel();
 	progress = new QProgressBar();
 	vLayout->addWidget(openButton);
+	vLayout->addWidget(saveAsButton);
 	vLayout->addWidget(saveButton);
 	vLayout->addSpacing(20);
 	vLayout->addWidget(normButton);
 	vLayout->addWidget(deleteButton);
+	vLayout->addWidget(sketchButton);
 	vLayout->addStretch();
 	vLayout->addWidget(status);
 	vLayout->addWidget(progress);
@@ -93,22 +100,47 @@ EditWidget::EditWidget()
 	layout->setRowStretch(1, 1);
 
 	setLayout(layout);
-	connect(openButton, SIGNAL(clicked()), this, SLOT(init()));
-	connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
+	connect(openButton, SIGNAL(clicked()), this, SLOT(load()));
+	connect(saveAsButton, SIGNAL(clicked()), this, SLOT(saveAs()));
+	connect(saveButton, SIGNAL(clicked()), this, SLOT(saveToFile()));
 	connect(normButton, SIGNAL(clicked()), this, SLOT(norm()));
 	connect(deleteButton, SIGNAL(clicked()), this, SLOT(deleteVertex()));
+	connect(sketchButton, SIGNAL(clicked()), this, SLOT(sketch()));
+}
+
+void EditWidget::load()
+{
+	loadFromFile = true;
+	init();
 }
 
 void EditWidget::init()
 {
-	status->setText(tr("Loading..."));
 
 	//MyMesh *m = new MyMesh("mesh.stl");
 	//m->write("mesh.smf");
 	//return;
 
-	system("QSlim.exe -o testo.smf -t 50000 test.smf");
-	mm = new MyMesh("testo.smf");
+	if (loadFromFile)
+	{
+		QString path = QFileDialog::getOpenFileName(this, tr("Open 3D Object"), ".", tr("3D Object Files(*.ply *.ray *.obj *.off *.sm *.smf *.stl *.dae)"));
+		if (path.length() == 0)
+			return;
+		saveName = path;
+		mm = new MyMesh(path.toStdString().c_str());
+		if (mm->faces.size() > MAX_FACES)
+		{
+			mm->write("temp.smf");
+			system("QSlim.exe -o temp.smf -t 50000 temp.smf");
+			delete mm;
+			mm = new MyMesh("temp.smf");
+		}
+		loadFromFile = false;
+	}
+	else
+		mm = new MyMesh("temp.off");
+
+	status->setText(tr("Processing..."));
 
 	int maxVal = mm->vertices.size();
 	progress->setRange(0, maxVal);
@@ -167,9 +199,25 @@ void EditWidget::init()
 	status->setText(tr("Done."));
 }
 
+void EditWidget::saveAs()
+{
+	QString path = QFileDialog::getSaveFileName(this, tr("Save 3D Object"), saveName, tr("3D Object Files(*.ply *.ray *.obj *.off *.sm *.smf *.stl *.dae)"));
+	if (path.length() == 0)
+		return;
+	saveName = path;
+	save();
+	mm->write(saveName.toStdString().c_str());
+}
+
+void EditWidget::saveToFile()
+{
+	save();
+	mm->write(saveName.toStdString().c_str());
+}
+
 void EditWidget::save()
 {
-	status->setText(tr("Saving..."));
+	status->setText(tr("Processing..."));
 	int maxVal = mm->vertices.size();
 	progress->setRange(0, maxVal);
 	int val = 0;
@@ -240,7 +288,7 @@ void EditWidget::save()
 
 void EditWidget::deleteVertex()
 {
-	status->setText(tr("Deleting..."));
+	status->setText(tr("Processing..."));
 	int maxVal = mm->vertices.size();
 	progress->setRange(0, maxVal);
 
@@ -291,7 +339,7 @@ void EditWidget::deleteVertex()
 
 void EditWidget::norm()
 {
-	status->setText(tr("Normalizing..."));
+	status->setText(tr("Processing..."));
 	int maxVal = mm->vertices.size();
 	progress->setRange(0, maxVal);
 
@@ -312,6 +360,13 @@ void EditWidget::norm()
 
 	progress->setValue(maxVal);
 	status->setText(tr("Done."));
+}
+
+void EditWidget::sketch()
+{
+	save();
+	system("SketchContour.exe");
+	init();
 }
 
 EditWidget::~EditWidget()
