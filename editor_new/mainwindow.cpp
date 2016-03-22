@@ -13,28 +13,41 @@ MainWindow::MainWindow(QWidget *parent)
 	EditWidget *editWidget = new EditWidget();
 	tab->addTab(editWidget, "Edit");
 
-	QWidget *printWidget = new QWidget();
-	QGridLayout *printLayout = new QGridLayout();
-	printSetting = new QPushButton("Setting");
-	printPrint = new QPushButton("Print");
-	printPreview = new QPushButton("Preview");
-	printLayout->addWidget(printSetting, 0, 0);
-	printLayout->addWidget(printPreview, 1, 0);
-	printLayout->addWidget(printPrint, 2, 0);
-	printLayout->setColumnStretch(1, 1);
-	printLayout->setRowStretch(3, 1);
-	printWidget->setLayout(printLayout);
+	QWidget *printWidget = new PrintWidget();
 	tab->addTab(printWidget, "Print");
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(tab);
 	setLayout(layout);
+	/*
+	QGridLayout *printLayout = new QGridLayout();
+	printSetting = new QPushButton("Setting");
+	printPrint = new QPushButton("Print");
+	printPreview = new QPushButton("Preview");
+	rolate = new QPushButton("Rolate");
+	view = new QPushButton("View");
+	printLayout->addWidget(printSetting, 0, 0);
+	printLayout->addWidget(printPreview, 1, 0);
+	printLayout->addWidget(printPrint, 2, 0);
+	printLayout->addWidget(rolate, 3, 0);
+	printLayout->addWidget(view, 4, 0);
+	printLayout->setColumnStretch(1, 1);
+	printLayout->setRowStretch(5, 1);
+	printWidget->setLayout(printLayout);
 	
+	tab->addTab(printWidget, "Print");
+	*/
 
+	
+	/*
 	connect(printSetting, SIGNAL(clicked()), this, SLOT(open_setting()));
 	connect(printPrint, SIGNAL(clicked()), this, SLOT(begin_print()));
 	connect(printPreview, SIGNAL(clicked()), this, SLOT(print_preview()));
+	connect(rolate, SIGNAL(clicked()), this, SLOT(rolate_mode()));
+	connect(view, SIGNAL(clicked()), this, SLOT(view_mode())); */
+	
 }
+/*
 void MainWindow::open_setting(){
 	setting *s = new setting;
 	s->show();
@@ -79,13 +92,14 @@ void MainWindow::print_preview(){
 	char *offpath = "temp.off";// D:\\work\\database\\SHREC14LSGTB\\M000003.off";
 	char *stlpath = "..\\file\\test.stl";
 	off2stl(offpath, stlpath);
-	slide();
-	w = new Gcodeviewer;
+	float h = slide();
+	w = new Gcodeviewer();
+	w->setHeight(h);
 	w->setWindowTitle("Print Preview");
 	w->show();
 }
 
-void MainWindow::slide(){
+float MainWindow::slide(){
 	profile *p = read_settings("..\\file\\config.ini");
 	/*
 	ui.Quality->setCurrentIndex(p->Quality);
@@ -96,7 +110,7 @@ void MainWindow::slide(){
 	ui.NumofShells->setValue(atoi(p->NumofShells));
 	ui.Temperature->setValue(atoi(p->Temperature));
 	ui.ModelHeight->setValue(atoi(p->ModelHeight));
-	*/
+	
 	float scale = 30 / getheight("temp.off");
 	QString Slic("..\\file\\test.stl --output ..\\file\\path.gcode");
 	QString R(" --raft-layers 3"); //true
@@ -134,5 +148,6 @@ void MainWindow::slide(){
 	ShExecInfo.hInstApp = NULL;
 	ShellExecuteEx(&ShExecInfo);
 	WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
-}
+	return atof(p->LayerHeight);
+}*/
 

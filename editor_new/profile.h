@@ -1,3 +1,6 @@
+#ifndef PROFILE_H
+#define PROFILE_H
+
 #include <string.h>
 #include <fstream>  
 typedef struct profile{
@@ -25,3 +28,4 @@ typedef struct profile{
 
 bool ctb(const char *a);
 profile *read_settings(const char *filename);
+#endif // PROFILE_H

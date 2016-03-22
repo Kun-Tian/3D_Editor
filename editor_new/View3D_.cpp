@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <cmath>
 #include <QString>
-#include "View3D.h"
+#include "View3D_.h"
 
 //#include "GL/GLU.H"
 //#include "GL/glut.h"
@@ -12,7 +12,38 @@
 #define PI 3.1415926536
 #endif
 
-GLint View3D::_colorList[12][3] = {
+void rotate_point(MyMesh *mm, double x,int axis){
+	x = x / 180 * PI;
+//	y = y / 180 * PI;
+	int l = mm->vertices.size();
+	float a, b, c;
+	double cos0, sin0, cos1, sin1;
+	cos0 = cos(x);
+	sin0 = sin(x);
+//	cos1 = cos(y);
+//	sin1 = sin(y);
+	for (int i = 0; i < l; i++){
+		a = mm->vertices[i][0];
+		b = mm->vertices[i][1];
+		c = mm->vertices[i][2];
+		//mm->vertices[i][0] = cos1*a - sin1*c;
+		//mm->vertices[i][1] = sin0*sin1*a + cos0*b + sin0*cos1*c;
+		//mm->vertices[i][2] = cos0*sin1*a - sin0*b + cos0*cos1*c;
+		if (axis == 0){
+			mm->vertices[i][0] = a;
+			mm->vertices[i][1] = cos0 * b + sin0 * c;
+			mm->vertices[i][2] =-sin0 * b + cos0 * c;
+		}
+		if (axis == 1){
+			mm->vertices[i][0] = cos0 * a - sin0 * c;
+			mm->vertices[i][1] = b;
+			mm->vertices[i][2] = sin0 * a + cos0 * c;
+		}
+	}
+	
+}
+
+GLint View3D_::_colorList[12][3] = {{ 0, 191, 255 }, //深天蓝
 		{ 196, 196, 196 }, //无分割信息情况下默认显示颜色
 		{ 220, 20, 60 }, //浅粉红
 		{ 255, 215, 0 }, //金色
@@ -21,13 +52,13 @@ GLint View3D::_colorList[12][3] = {
 		{ 0, 0, 205 }, //中蓝色
 		{ 160, 82, 45 }, //黄土赭色
 		{ 0, 100, 0 }, //暗绿色
-		{ 0, 191, 255 }, //深天蓝
+		
 		{ 0, 255, 127 }, //春绿色
 		{ 255, 165, 0 }, //橙色
 		{ 128, 128, 128 }
 };
 
-View3D::View3D(QWidget *parent) :
+View3D_::View3D_(QWidget *parent) :
 QGLWidget(parent)
 {
 	m = 3;
@@ -37,6 +68,9 @@ QGLWidget(parent)
 	rotationX = 0.0;
 	rotationY = 0.0;
 	rotationZ = 0.0;
+	rotationMX = 0.0;
+	rotationMY = 0.0;
+	rotationMZ = 0.0;
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -47,15 +81,18 @@ QGLWidget(parent)
 	drawAxis = false;
 	drawSelection = false;
 
-	selectMode = false;
+	selectMode = 1;
 	part1 = "";
 	part2 = "";
 	
 }
 
-void View3D::setModel(MyMesh *m)
+void View3D_::setModel(MyMesh *m)
 {
 	mm = m;
+	//rotate_point(mm, -30);
+	//rotate_point(mm, 20, 1);
+	//rotate_point(mm, 30, 0);
 	/*
 	m = 3;
 	rotationX = 0.0;
@@ -65,7 +102,7 @@ void View3D::setModel(MyMesh *m)
 	updateGL();
 }
 
-void View3D::captureDepth()
+void View3D_::captureDepth()
 {
 	//int NbBytes = size().width() * size().height();
 	//float *pPixelData = new float[NbBytes];
@@ -75,7 +112,7 @@ void View3D::captureDepth()
 
 }
 
-void View3D::initializeGL()
+void View3D_::initializeGL()
 {
 	//glClearColor(80.0 / 255.0, 120.0 / 255.0, 220.0 / 255.0, 0.0f);
 	glClearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 0.0f);
@@ -87,7 +124,7 @@ void View3D::initializeGL()
 	init_light();
 }	
 
-void View3D::init_light()
+void View3D_::init_light()
 {
 	GLfloat white_light[] = { 0.23, 0.23, 0.23, 1.0 };
 
@@ -126,7 +163,7 @@ void View3D::init_light()
 	//glEnable(GL_DEPTH_TEST);
 }
 
-void View3D::paintGL()
+void View3D_::paintGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClearColor(80.0 / 255.0, 120.0 / 255.0, 220.0 / 255.0, 0.0f);
@@ -136,7 +173,7 @@ void View3D::paintGL()
 	glFinish();
 }
 
-void View3D::drawTriangle()
+void View3D_::drawTriangle()
 {
 	GLfloat no_mat[4] = { 0.0, 0.0, 0, 1 };
 	GLfloat mat_diffuse[4] = { 0, 0, 0, 1 };		//r±íÊ¾´óÖµ£¬b±íÊ¾Ð¡Öµ
@@ -153,7 +190,11 @@ void View3D::drawTriangle()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.0, 0.0, -0.0);
-	
+
+	//glRotatef(20, 0.0, 1.0, 0.0);
+	//glRotatef(30, 1.0, 0.0, 0.0);
+	//glRotatef(30, 0.0, 1.0, 0.0);
+
 	glRotatef(rotationX, 1.0, 0.0, 0.0);
 	glRotatef(rotationY, 0.0, 1.0, 0.0);
 	glRotatef(rotationZ, 0.0, 0.0, 1.0);
@@ -168,7 +209,7 @@ void View3D::drawTriangle()
 	glVertex3f(0, 0, 0);
 	glVertex3f(5, 0, 0);
 	glEnd();
-	glBegin(GL_LINE_STRIP);
+	/*glBegin(GL_LINE_STRIP);
 	for (double i = 0; i <= 2 * pi; i += pi / 180)
 	{
 		double vy = m * cos(i);
@@ -176,7 +217,7 @@ void View3D::drawTriangle()
 		glVertex3d(0, vy, vz);
 	}
 	glEnd();
-
+	*/
 	mat_diffuse[0] = 0;
 	mat_diffuse[1] = 1;
 	mat_diffuse[2] = 0;
@@ -185,7 +226,7 @@ void View3D::drawTriangle()
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 5, 0);
 	glEnd();
-	glBegin(GL_LINE_STRIP);
+	/*glBegin(GL_LINE_STRIP);
 	for (double i = 0; i <= 2 * pi; i += pi / 180)
 	{
 		double vx = m * cos(i);
@@ -193,7 +234,7 @@ void View3D::drawTriangle()
 		glVertex3d(vx, 0, vz);
 	}
 	glEnd();
-
+	*/
 	mat_diffuse[0] = 0;
 	mat_diffuse[1] = 0;
 	mat_diffuse[2] = 1;
@@ -210,7 +251,7 @@ void View3D::drawTriangle()
 		glVertex3d(vx, vy, 0);
 	}
 	glEnd();
-
+	
 	if (!mm)
 		return;
 
@@ -247,14 +288,14 @@ void View3D::drawTriangle()
 	{
 		if (mm->selected[i])
 		{
-			drawSphere(mm->vertices[i][0] * m, mm->vertices[i][1] * m, mm->vertices[i][2] * m, 0.005*m, 3, 3);
+	//		drawSphere(mm->vertices[i][0] * m, mm->vertices[i][1] * m, mm->vertices[i][2] * m, 0.005*m, 3, 3);
 		}
 	}
 	glEnd();
 
 }
 
-void View3D::drawSphere(GLfloat xx, GLfloat yy, GLfloat zz, GLfloat radius, GLfloat M, GLfloat N)
+void View3D_::drawSphere(GLfloat xx, GLfloat yy, GLfloat zz, GLfloat radius, GLfloat M, GLfloat N)
 {
 	float step_z = PI / M;
 	float step_xy = 2 * PI / N;
@@ -298,7 +339,7 @@ void View3D::drawSphere(GLfloat xx, GLfloat yy, GLfloat zz, GLfloat radius, GLfl
 	glEnd();
 }
 
-void View3D::resizeGL(int width, int height)
+void View3D_::resizeGL(int width, int height)
 {
 	GLfloat nRange = 3.0f;
 	if (height == 0) {    // Prevent A Divide By Zero By  
@@ -316,32 +357,43 @@ void View3D::resizeGL(int width, int height)
 	glLoadIdentity();
 }
 
-void View3D::mousePressEvent(QMouseEvent *event)
+void View3D_::mousePressEvent(QMouseEvent *event)
 {
 	lastPos = event->pos();
 	clickEvent = true;
 }
 
-void View3D::mouseMoveEvent(QMouseEvent *event)
+void View3D_::mouseMoveEvent(QMouseEvent *event)
 {
 	clickEvent = false;
 	GLfloat dx = GLfloat(event->x() - lastPos.x()) / width();
 	GLfloat dy = GLfloat(event->y() - lastPos.y()) / height();
-
-	if (event->buttons() & Qt::LeftButton) {
-		rotationX += 180 * dy;
-		rotationY += 180 * dx;
-		updateGL();
+	if (selectMode == 1){
+		if (event->buttons() & Qt::LeftButton) {
+			rotationX += 180 * dy;
+			rotationY += 180 * dx;
+			updateGL();
+		}
+		else if (event->buttons() & Qt::RightButton) {
+			rotationX += 180 * dy;
+			rotationZ += 180 * dx;
+			updateGL();
+		}
 	}
-	else if (event->buttons() & Qt::RightButton) {
-		rotationX += 180 * dy;
-		rotationZ += 180 * dx;
+	if (selectMode == 2){
+		rotationMX -= 180 * dy;
+		rotationMY -= 180 * dx;
+		rotate_point(mm, rotationMX, 0);
+		rotate_point(mm, rotationMY, 1);
+		rotationMX = 0;
+		rotationMY = 0;
 		updateGL();
 	}
 	lastPos = event->pos();
+
 }
 
-void View3D::mouseReleaseEvent(QMouseEvent *event)
+void View3D_::mouseReleaseEvent(QMouseEvent *event)
 {
 	qDebug() << "X: " << rotationX;
 	qDebug() << "Y: " << rotationY;
@@ -380,7 +432,7 @@ void View3D::mouseReleaseEvent(QMouseEvent *event)
 	updateGL();*/
 }
 
-void View3D::ProcessPicks(GLint nPicks, GLuint pickBuffer[])
+void View3D_::ProcessPicks(GLint nPicks, GLuint pickBuffer[])
 {
 	GLint i;
 	GLuint name, *ptr;
@@ -396,7 +448,7 @@ void View3D::ProcessPicks(GLint nPicks, GLuint pickBuffer[])
 	}
 }
 
-void View3D::wheelEvent(QWheelEvent *e)
+void View3D_::wheelEvent(QWheelEvent *e)
 {
 	if (e->delta() > 0 && m > 0.3)
 		m *= 0.9f;
@@ -405,7 +457,7 @@ void View3D::wheelEvent(QWheelEvent *e)
 	updateGL();
 }
 
-void View3D::normalizeAngle(int &angle)
+void View3D_::normalizeAngle(int &angle)
 {
 	while (angle < 0)
 		angle += 360 * 16;
@@ -413,7 +465,7 @@ void View3D::normalizeAngle(int &angle)
 		angle -= 360 * 16;
 }
 
-void View3D::setXRotation(int angle)
+void View3D_::setXRotation(int angle)
 {
 	normalizeAngle(angle);
 	if (angle != rotationX) {
@@ -423,7 +475,7 @@ void View3D::setXRotation(int angle)
 	}
 }
 
-void View3D::setYRotation(int angle)
+void View3D_::setYRotation(int angle)
 {
 	normalizeAngle(angle);
 	if (angle != rotationY) {
@@ -433,7 +485,7 @@ void View3D::setYRotation(int angle)
 	}
 }
 
-void View3D::setZRotation(int angle)
+void View3D_::setZRotation(int angle)
 {
 	normalizeAngle(angle);
 	if (angle != rotationY) {
@@ -443,7 +495,7 @@ void View3D::setZRotation(int angle)
 	}
 }
 
-void View3D::resetView()
+void View3D_::resetView()
 {
 	m = 3;
 	rotationX = 0.0;

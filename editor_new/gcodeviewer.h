@@ -21,6 +21,8 @@ public:
     Gcodeviewer(QWidget *parent = 0);
     ~Gcodeviewer();
     void loadGCode(string fileName);
+	void setHeight(float h);
+	float layerheight;
 private:
    // Ui::QtOpenGLClass ui;
     DockOpenGL* GLDock;

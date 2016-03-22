@@ -32,11 +32,12 @@ public:
 	void loadGCode(string fileName);
 	void changeLayer(int l);
 	int MaxLayer;
-	
+	void setHeight(float h);
 protected:
 	void resizeEvent(QResizeEvent* event);
 	
 private:
+	float layerheight;
 	GLDrawer* drawer;
 };
 

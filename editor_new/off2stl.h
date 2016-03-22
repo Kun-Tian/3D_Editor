@@ -1,3 +1,6 @@
+#ifndef OFF2STL_H
+#define OFF2STL_H
+
 #include<string>
 
 void getnorm(int va, int vb, int vc, float norm[]);
@@ -24,3 +27,4 @@ struct face{
 		norm[2] = 0;
 	}
 };
+#endif//OFF2STL_H

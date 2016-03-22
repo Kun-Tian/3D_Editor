@@ -63,6 +63,7 @@ public:
 	float getMaxZ();
 	bool isOpen();
 	int MaxLayer;
+	float layerheight;
 protected:
 	
 private:

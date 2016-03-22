@@ -42,3 +42,8 @@ void DockOpenGL::loadGCode(string fileName)
 void DockOpenGL::changeLayer(int l){
 	drawer->changeLayer(l);
 }
+
+void DockOpenGL::setHeight(float h){
+	layerheight = h;
+	drawer->setHeight(h);
+};

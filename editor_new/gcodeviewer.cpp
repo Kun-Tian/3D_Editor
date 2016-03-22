@@ -80,6 +80,10 @@ void Gcodeviewer::loadGCode(string fileName)
 		layerselect->setMaximum(GLDock->MaxLayer);
 		layerselect->setValue(GLDock->MaxLayer);
 }*/
+void Gcodeviewer::setHeight(float h){
+	layerheight = h;
+	GLDock->setHeight(h);
+}
 
 void Gcodeviewer::changeLayer(){
 	GLDock->changeLayer(layerselect->value());

@@ -19,7 +19,7 @@ setting::setting(QWidget *parent)
 	ui.NumofShells->setSingleStep(1);
 	ui.Temperature->setRange(0, 280);
 	ui.Temperature->setSingleStep(1);
-	ui.ModelHeight->setRange(20, 150);
+	ui.ModelHeight->setRange(5, 150);
 	ui.ModelHeight->setSingleStep(1);
 	ui.ModelHeight->setSuffix("mm");
 	char *string = "буC";
